@@ -1,0 +1,15 @@
+{
+  "name": "geek",
+  "version": "0.0.1",
+  "description": "",
+  "main": "myowncli.js",
+  "bin": {
+    "geek": "geek.js"
+  },
+  "dependencies"  : {
+    "commander": ">=0.6.0",
+    "shelljs": ""
+  },
+  "author": "",
+  "license": "ISC"
+}
