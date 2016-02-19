@@ -63,7 +63,7 @@ program
                 _json.index = parseInt(_json.index)
                 _json.index = 0;
                 console.log("Resetting previous changes...")
-                fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json), function(err, data) {
+                fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
                     exec('git checkout ' + _json.branch, {
                         async: true
                     }, function(code, stdout, stderr) {
@@ -92,7 +92,7 @@ program
                     console.log('Exit code:', code);
                     console.log('Program output:', stdout);
                     console.log('Program stderr:', stderr);
-                    fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json), function(err, data) {
+                    fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
                     });
                 });
 
@@ -117,7 +117,7 @@ program
                     console.log('Exit code:', code);
                     console.log('Program output:', stdout);
                     console.log('Program stderr:', stderr);
-                    fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json), function(err, data) {
+                    fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
                     });
                 });
 
