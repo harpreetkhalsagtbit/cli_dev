@@ -1,13 +1,8 @@
 #!/usr/bin/env node
 
 var program = require('commander');
-require('shelljs/global');
 var fs = require("fs");
-
-if (!which('git')) {
-    echo('Sorry, this script requires git');
-    exit(1);
-}
+var exec = require('child_process').exec;
 
 program
     .version('0.0.1')
@@ -34,10 +29,8 @@ program
             } else {
                 if(data && data.toString) {
                     var _json = JSON.parse(data.toString())
-                    exec('git checkout ' + _json.branches[_json.index], {
-                        async: true
-                    }, function(code, stdout, stderr) {
-                        console.log('Exit code:', code);
+                    exec('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
+                        console.log('Exit code:', error);
                         console.log('');
                         console.log('Program output:', stdout);
                         console.log('');
@@ -64,9 +57,7 @@ program
                 _json.index = 0;
                 console.log("Resetting previous changes...")
                 fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                    exec('git checkout ' + _json.initialBranch, {
-                        async: true
-                    }, function(code, stdout, stderr) {
+                    execute('git checkout ' + _json.initialBranch, function(error, stdout, stderr) {
                         console.log("Reset done")
                     });
                 });
@@ -87,13 +78,13 @@ program
                 _json.index = parseInt(_json.index)
                 if(_json.index+1 < _json.branches.length) {
                     _json.index++;
-                    exec('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], {
-                        async: true
-                    }, function(code, stdout, stderr) {
-                        exec('git checkout ' + _json.branches[_json.index], {
-                            async: true
-                        }, function(code, stdout, stderr) {
-                            console.log('Exit code:', code);
+                    execute('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
+                            console.log('Exit code:', error);
+                            console.log('Program output:', stdout);
+                            console.log('Program stderr:', stderr);
+
+                        execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
+                            console.log('Exit code:', error);
                             console.log('Program output:', stdout);
                             console.log('Program stderr:', stderr);
                             fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
@@ -118,10 +109,8 @@ program
                 var _json = JSON.parse(data.toString())
                 _json.index = parseInt(_json.index)
                 _json.index--;
-                exec('git checkout ' + _json.branches[_json.index], {
-                    async: true
-                }, function(code, stdout, stderr) {
-                    console.log('Exit code:', code);
+                execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
+                    console.log('Exit code:', error);
                     console.log('Program output:', stdout);
                     console.log('Program stderr:', stderr);
                     fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
@@ -148,3 +137,17 @@ program
 //     });
 
 program.parse(process.argv);
+
+
+var exec = require('child_process').exec;
+function execute(command, callback){
+    exec(command, function(error, stdout, stderr){ callback(error, stdout, stderr); });
+};
+
+// module.exports.getGitUser = function(callback){
+//     execute("git config --global user.name", function(name){
+//         execute("git config --global user.email", function(email){
+//             callback({ name: name.replace("\n", ""), email: email.replace("\n", "") });
+//         });
+//     });
+// };

@@ -7,8 +7,7 @@
     "geek": "geek.js"
   },
   "dependencies"  : {
-    "commander": ">=0.6.0",
-    "shelljs": ""
+    "commander": ">=0.6.0"
   },
   "author": "",
   "license": "ISC"
