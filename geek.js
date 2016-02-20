@@ -34,7 +34,7 @@ program
             } else {
                 if(data && data.toString) {
                     var _json = JSON.parse(data.toString())
-                    exec('git checkout ' + _json.hashes[_json.index], {
+                    exec('git checkout ' + _json.branches[_json.index], {
                         async: true
                     }, function(code, stdout, stderr) {
                         console.log('Exit code:', code);
@@ -64,7 +64,7 @@ program
                 _json.index = 0;
                 console.log("Resetting previous changes...")
                 fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                    exec('git checkout ' + _json.branch, {
+                    exec('git checkout ' + _json.initialBranch, {
                         async: true
                     }, function(code, stdout, stderr) {
                         console.log("Reset done")
@@ -85,17 +85,24 @@ program
             } else {
                 var _json = JSON.parse(data.toString())
                 _json.index = parseInt(_json.index)
-                _json.index++;
-                exec('git checkout ' + _json.hashes[_json.index], {
-                    async: true
-                }, function(code, stdout, stderr) {
-                    console.log('Exit code:', code);
-                    console.log('Program output:', stdout);
-                    console.log('Program stderr:', stderr);
-                    fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
+                if(_json.index+1 < _json.branches.length) {
+                    _json.index++;
+                    exec('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], {
+                        async: true
+                    }, function(code, stdout, stderr) {
+                        exec('git checkout ' + _json.branches[_json.index], {
+                            async: true
+                        }, function(code, stdout, stderr) {
+                            console.log('Exit code:', code);
+                            console.log('Program output:', stdout);
+                            console.log('Program stderr:', stderr);
+                            fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
+                            });
+                        });
                     });
-                });
-
+                } else {
+                    console.log("Unable to move Next...")
+                }
             }
         })
     });
@@ -111,7 +118,7 @@ program
                 var _json = JSON.parse(data.toString())
                 _json.index = parseInt(_json.index)
                 _json.index--;
-                exec('git checkout ' + _json.hashes[_json.index], {
+                exec('git checkout ' + _json.branches[_json.index], {
                     async: true
                 }, function(code, stdout, stderr) {
                     console.log('Exit code:', code);

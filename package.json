@@ -2,7 +2,7 @@
   "name": "geek",
   "version": "0.0.1",
   "description": "",
-  "main": "myowncli.js",
+  "main": "geekify.js",
   "bin": {
     "geek": "geek.js"
   },
