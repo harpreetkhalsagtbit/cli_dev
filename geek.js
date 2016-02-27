@@ -47,7 +47,7 @@ program
 
 program
     .command('reset')
-    .description('initialize project configuration')
+    .description('Reset all changes and Initialize')
     .action(function(name) {
         fs.readFile(process.cwd() + "/geek.json", function(err, data) {
             if (err) {
@@ -69,7 +69,7 @@ program
 
 program
     .command('showdiff')
-    .description('initialize project configuration')
+    .description('show diff between current and last commit - defined in geek.json file of current repository')
     .action(function(name) {
         fs.readFile(process.cwd() + "/geek.json", function(err, data) {
             if (err) {
@@ -91,7 +91,7 @@ program
 
 program
     .command('next')
-    .description('initialize project configuration')
+    .description('Jumt to Next Step - defined in geek.json file of current repository')
     .action(function(name) {
         fs.readFile(process.cwd() + "/geek.json", function(err, data) {
             if (err) {
@@ -101,17 +101,11 @@ program
                 _json.index = parseInt(_json.index)
                 if(_json.index+1 < _json.branches.length) {
                     _json.index++;
-                    execute('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
-                            // console.log('Exit code:', error);
-                            console.log('Program output:', colors.green(stdout));
-                            // console.log('Program stderr:', stderr);
-
-                        execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                            // console.log('Exit code:', error);
-                            // console.log('Program output:', stdout);
-                            console.log('Program stderr:', colors.red(stderr));
-                            fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                            });
+                    execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
+                        // console.log('Exit code:', error);
+                        // console.log('Program output:', stdout);
+                        console.log('Program stderr:', colors.red(stderr));
+                        fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
                         });
                     });
                 } else {
@@ -123,7 +117,7 @@ program
 
 program
     .command('previous')
-    .description('initialize project configuration')
+    .description('Jumt to Previous Step - defined in geek.json file of current repository')
     .action(function(name) {
         fs.readFile(process.cwd() + "/geek.json", function(err, data) {
             if (err) {
@@ -133,17 +127,9 @@ program
                 _json.index = parseInt(_json.index)
                 if(_json.index > 0) {
                     _json.index--;
-                    execute('git diff ' + _json.branches[_json.index + 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
-                            // console.log('Exit code:', error);
-                            console.log('Program output:', colors.green(stdout));
-                            // console.log('Program stderr:', stderr);
-
-                        execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                            // console.log('Exit code:', error);
-                            // console.log('Program output:', stdout);
-                            console.log('Program stderr:', colors.red(stderr));
-                            fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                            });
+                    execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
+                        console.log('Program stderr:', colors.red(stderr));
+                        fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
                         });
                     });
                 } else {
@@ -151,13 +137,6 @@ program
                 }
             }
         })
-    });
-
-program
-    .command('bye [name]')
-    .description('initialize project configuration')
-    .action(function(name) {
-        console.log('Bye ' + name + '. It was good to see you!');
     });
 
 // program
@@ -174,16 +153,6 @@ var exec = require('child_process').exec;
 function execute(command, callback){
     exec(command, function(error, stdout, stderr){ callback(error, stdout, stderr); });
 };
-
-// module.exports.getGitUser = function(callback){
-//     execute("git config --global user.name", function(name){
-//         execute("git config --global user.email", function(email){
-//             callback({ name: name.replace("\n", ""), email: email.replace("\n", "") });
-//         });
-//     });
-// };
-// 
-
 
 function printLibName() {
     console.log(colors.green("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
