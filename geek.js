@@ -67,6 +67,27 @@ program
         })
     });
 
+program
+    .command('showdiff')
+    .description('initialize project configuration')
+    .action(function(name) {
+        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
+            if (err) {
+                console.log(err)
+            } else {
+                var _json = JSON.parse(data.toString())
+                _json.index = parseInt(_json.index)
+                if(_json.index+1 < _json.branches.length) {
+                    _json.index++;
+                    execute('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
+                        console.log('Program output:', colors.green(stdout));
+                    });
+                } else {
+                    console.log("Unable to move Next...")
+                }
+            }
+        })
+    });
 
 program
     .command('next')
@@ -110,19 +131,27 @@ program
             } else {
                 var _json = JSON.parse(data.toString())
                 _json.index = parseInt(_json.index)
-                _json.index--;
-                execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                    console.log('Exit code:', error);
-                    console.log('Program output:', stdout);
-                    console.log('Program stderr:', stderr);
-                    fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                    });
-                });
+                if(_json.index > 0) {
+                    _json.index--;
+                    execute('git diff ' + _json.branches[_json.index + 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
+                            // console.log('Exit code:', error);
+                            console.log('Program output:', colors.green(stdout));
+                            // console.log('Program stderr:', stderr);
 
+                        execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
+                            // console.log('Exit code:', error);
+                            // console.log('Program output:', stdout);
+                            console.log('Program stderr:', colors.red(stderr));
+                            fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
+                            });
+                        });
+                    });
+                } else {
+                    console.log("Unable to move Previous...")
+                }
             }
         })
     });
-
 
 program
     .command('bye [name]')
