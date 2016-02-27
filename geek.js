@@ -4,150 +4,70 @@ var program = require('commander');
 var fs = require("fs");
 var exec = require('child_process').exec;
 var colors = require('colors/safe');
+var Promise = require('promise');
 
 program
     .version('0.0.1')
 
 program
-    .command('init')    
-    .description('initialize tutorial')
-    .action(function() {
-
-        //Checkout to topmost git commit using - git commit's hash value as provided
-        //in geek.json file of the source repository
-
-        /**
-         * cd to current directory in which cli command has been executed
-         */
-        cd(process.cwd())
-
-        /**
-         * Read the content of JSON file, configuration, and checkout to hash index specified
-         */
-        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                if(data && data.toString) {
-                    var _json = JSON.parse(data.toString())
-                    exec('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                        console.log('Exit code:', error);
-                        console.log('');
-                        console.log('Program output:', stdout);
-                        console.log('');
-                        console.log('Program stderr:', stderr);
-                        console.log('');
-                    });
-                } else {
-                    console.log("error initializing")
-                }
-            }
-        })
-    });
-
-program
     .command('reset')
     .description('Reset all changes and Initialize')
     .action(function(name) {
-        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                printLibName();
-                var _json = JSON.parse(data.toString())
-                _json.index = parseInt(_json.index)
-                _json.index = 0;
-                console.log("Resetting previous changes...")
-                fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                    execute('git checkout ' + _json.initialBranch, function(error, stdout, stderr) {
-                        console.log("Reset done")
-                    });
-                });
-            }
-        })
+        printLibName();
+        geekPerformRestAction().then(function() {
+            console.log("Reset done")
+        }, function(err) {
+            console.error("geekPerformShowDiffAction: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
     });
 
 program
     .command('showdiff')
     .description('show diff between current and last commit - defined in geek.json file of current repository')
     .action(function(name) {
-        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                var _json = JSON.parse(data.toString())
-                _json.index = parseInt(_json.index)
-                if(_json.index+1 < _json.branches.length) {
-                    _json.index++;
-                    execute('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
-                        console.log('Program output:', colors.green(stdout));
-                    });
-                } else {
-                    console.log("Unable to move Next...")
-                }
-            }
-        })
+        geekPerformShowDiffAction().then(function() {
+            console.log("Diff done")
+        }, function(err) {
+            console.error("geekPerformShowDiffAction: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
     });
 
 program
     .command('next')
     .description('Jumt to Next Step - defined in geek.json file of current repository')
     .action(function(name) {
-        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                var _json = JSON.parse(data.toString())
-                _json.index = parseInt(_json.index)
-                if(_json.index+1 < _json.branches.length) {
-                    _json.index++;
-                    execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                        // console.log('Exit code:', error);
-                        // console.log('Program output:', stdout);
-                        console.log('Program stderr:', colors.red(stderr));
-                        fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                        });
-                    });
-                } else {
-                    console.log("Unable to move Next...")
-                }
-            }
-        })
+        geekPerformNextAction().then(function() {
+            console.log("Next done")
+        }, function(err) {
+            console.error("geekPerformNextAction: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
     });
 
 program
     .command('previous')
     .description('Jumt to Previous Step - defined in geek.json file of current repository')
     .action(function(name) {
-        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                var _json = JSON.parse(data.toString())
-                _json.index = parseInt(_json.index)
-                if(_json.index > 0) {
-                    _json.index--;
-                    execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                        console.log('Program stderr:', colors.red(stderr));
-                        fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                        });
-                    });
-                } else {
-                    console.log("Unable to move Previous...")
-                }
-            }
-        })
+        geekPerformPreviousAction().then(function() {
+            console.log("Previous done")
+        }, function(err) {
+            console.error("geekPerformPreviousAction: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
     });
 
-// program
-//     .command('*')
-//     .action(function(env) {
-//         console.log('Enter a Valid command');
-//         terminate(true);
-//     });
 
 program.parse(process.argv);
 
+/**
+ * Functions starts from here
+ */
 
 var exec = require('child_process').exec;
 function execute(command, callback){
@@ -164,4 +84,155 @@ function printLibName() {
     console.log(colors.green("*    ****   ****   ****   *   *  *****  *       *     *"));
     console.log(colors.green("*                                                     *"));
     console.log(colors.green("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
+}
+
+function geekPerformRestAction() {
+    return new Promise(function (fulfill, reject){
+        readJsonFile(process.cwd() + "/geek.json").then(function(response) {
+            var json = response;
+            json.index = 0
+            geekExecuteCommand('git checkout ' + json.initialBranch).then(function(response) {
+                updateJsonFile(process.cwd() + "/geek.json", JSON.stringify(json, null, 4)).then(function(response) {
+                    fulfill();
+                }, function(err) {
+                    console.error("updateJsonFile: ", err)
+                }).catch(function(err) {
+                    console.log(err.stack);
+                });
+            }, function(err) {
+                console.error("geekExecuteCommand: ", err)
+            }).catch(function(err) {
+                console.log(err.stack);
+            });
+        }, function(err) {
+            console.error("readJsonFile: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
+    });
+}
+
+function geekPerformNextAction() {
+    return new Promise(function (fulfill, reject){
+        readJsonFile(process.cwd() + "/geek.json").then(function(response) {
+            var json = response;
+            json.index = parseInt(json.index)
+            if(json.index+1 < json.branches.length) {
+                json.index++;
+                geekExecuteCommand('git checkout ' + json.branches[json.index]).then(function(response) {
+                    updateJsonFile(process.cwd() + "/geek.json", JSON.stringify(json, null, 4)).then(function(response) {
+                        fulfill();
+                    }, function(err) {
+                        console.error("updateJsonFile: ", err)
+                    }).catch(function(err) {
+                        console.log(err.stack);
+                    });
+                }, function(err) {
+                    console.error("geekExecuteCommand: ", err)
+                }).catch(function(err) {
+                    console.log(err.stack);
+                });
+            } else {
+                reject(new Error("Unable to move Next..."))
+            }
+        }, function(err) {
+            console.error("readJsonFile: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
+    });
+}
+
+function geekPerformPreviousAction() {
+    return new Promise(function (fulfill, reject){
+        readJsonFile(process.cwd() + "/geek.json").then(function(response) {
+            var json = response;
+            json.index = parseInt(json.index)
+            if(json.index > 0) {
+                json.index--;
+                geekExecuteCommand('git checkout ' + json.branches[json.index]).then(function(response) {
+                    updateJsonFile(process.cwd() + "/geek.json", JSON.stringify(json, null, 4)).then(function(response) {
+                        fulfill();
+                    }, function(err) {
+                        console.error("updateJsonFile: ", err)
+                    }).catch(function(err) {
+                        console.log(err.stack);
+                    });
+                }, function(err) {
+                    console.error("geekExecuteCommand: ", err)
+                }).catch(function(err) {
+                    console.log(err.stack);
+                });
+            } else {
+                reject(new Error("Unable to move Next..."))
+            }
+        }, function(err) {
+            console.error("readJsonFile: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
+    });
+}
+
+function geekPerformShowDiffAction() {
+    return new Promise(function (fulfill, reject){
+        readJsonFile(process.cwd() + "/geek.json").then(function(response) {
+            var json = response;
+            json.index = parseInt(json.index)
+            console.log("json.index", json.index)
+            if(json.index> 0) {
+                geekExecuteCommand('git diff ' + json.branches[json.index - 1] + " " + json.branches[json.index]).then(function(response) {
+                    console.log("Diff done")
+                }, function(err) {
+                    console.error("geekExecuteCommand: ", err)
+                }).catch(function(err) {
+                    console.log(err.stack);
+                });
+            } else {
+                reject(new Error("No diff to show..."))
+            }
+        }, function(err) {
+            console.error("readJsonFile: ", err)
+        }).catch(function(err) {
+            console.log(err.stack);
+        });
+    });
+}
+
+function updateJsonFile(fileName, json) {
+    return new Promise(function (fulfill, reject){
+        fs.writeFile(fileName, json, function(err, data) {
+            if (err) reject(err);
+            else {
+                fulfill();
+            }
+        });
+    });
+}
+
+function readJsonFile(fileName) {
+    return new Promise(function (fulfill, reject){
+        fs.readFile(fileName, function(err, data) {
+            if (err) reject(err);
+            else {
+                fulfill(JSON.parse(data.toString()))
+            }
+        });
+    });
+}
+
+function geekExecuteCommand(command) {
+    return new Promise(function (fulfill, reject){
+        execute(command, function(err, stdout, stderr) {
+            if (err) reject(err);
+            else {
+                if(stdout) {
+                    console.log('Program stdout:', colors.green(stdout));
+                } else if(stderr) {
+                    console.log('Program stderr:', colors.red(stderr));
+                }
+                fulfill();
+            }
+        });
+    });
 }
