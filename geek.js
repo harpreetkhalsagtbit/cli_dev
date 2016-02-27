@@ -3,6 +3,7 @@
 var program = require('commander');
 var fs = require("fs");
 var exec = require('child_process').exec;
+var colors = require('colors/safe');
 
 program
     .version('0.0.1')
@@ -52,6 +53,7 @@ program
             if (err) {
                 console.log(err)
             } else {
+                printLibName();
                 var _json = JSON.parse(data.toString())
                 _json.index = parseInt(_json.index)
                 _json.index = 0;
@@ -79,14 +81,14 @@ program
                 if(_json.index+1 < _json.branches.length) {
                     _json.index++;
                     execute('git diff ' + _json.branches[_json.index - 1] + " " + _json.branches[_json.index], function(error, stdout, stderr) {
-                            console.log('Exit code:', error);
-                            console.log('Program output:', stdout);
-                            console.log('Program stderr:', stderr);
+                            // console.log('Exit code:', error);
+                            console.log('Program output:', colors.green(stdout));
+                            // console.log('Program stderr:', stderr);
 
                         execute('git checkout ' + _json.branches[_json.index], function(error, stdout, stderr) {
-                            console.log('Exit code:', error);
-                            console.log('Program output:', stdout);
-                            console.log('Program stderr:', stderr);
+                            // console.log('Exit code:', error);
+                            // console.log('Program output:', stdout);
+                            console.log('Program stderr:', colors.red(stderr));
                             fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
                             });
                         });
@@ -151,3 +153,17 @@ function execute(command, callback){
 //         });
 //     });
 // };
+// 
+
+
+function printLibName() {
+    console.log(colors.green("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
+    console.log(colors.green("*                                                     *"));
+    console.log(colors.green("*    ***    ****   ****   *   *  *****  ****  *   *   *"));
+    console.log(colors.green("*   *       *      *      * *      *    *      * *    *"));
+    console.log(colors.green("*   *  ***  ***    ***    **       *    ***     *     *"));
+    console.log(colors.green("*   *   *   *      *      * *      *    *       *     *"));
+    console.log(colors.green("*    ****   ****   ****   *   *  *****  *       *     *"));
+    console.log(colors.green("*                                                     *"));
+    console.log(colors.green("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
+}
