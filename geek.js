@@ -9,7 +9,7 @@ program
 program
     .command('reset')
     .description('Reset all changes and Initialize')
-    .action(function(name) {
+    .action(function() {
         geekHandler.printLibName();
         geekHandler.geekPerformRestAction().then(function() {
             console.log("Reset done")
@@ -59,5 +59,11 @@ program
         });
     });
 
+program
+    .command('*')
+    .description('Any')
+    .action(function(name) {
+        console.log("Hello Geek")
+    });
 
 program.parse(process.argv);
