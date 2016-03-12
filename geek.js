@@ -2,6 +2,7 @@
 
 var program = require('commander');
 var fs = require("fs");
+var fse = require('fs-extra')
 var exec = require('child_process').exec;
 var colors = require('colors/safe');
 
@@ -45,26 +46,52 @@ program
         })
     });
 
+// program
+//     .command('reset')
+//     .description('Reset all changes and Initialize')
+//     .action(function(name) {
+//         fs.readFile(process.cwd() + "/geek.json", function(err, data) {
+//             if (err) {
+//                 console.log(err)
+//             } else {
+//                 printLibName();
+//                 var _json = JSON.parse(data.toString())
+//                 _json.index = parseInt(_json.index)
+//                 _json.index = 0;
+//                 console.log("Resetting previous changes...")
+//                 fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
+//                     execute('git checkout ' + _json.initialBranch, function(error, stdout, stderr) {
+//                         console.log("Reset done")
+//                     });
+//                 });
+//             }
+//         })
+//     });
+
 program
     .command('reset')
     .description('Reset all changes and Initialize')
     .action(function(name) {
-        fs.readFile(process.cwd() + "/geek.json", function(err, data) {
-            if (err) {
-                console.log(err)
-            } else {
-                printLibName();
-                var _json = JSON.parse(data.toString())
-                _json.index = parseInt(_json.index)
-                _json.index = 0;
-                console.log("Resetting previous changes...")
-                fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
-                    execute('git checkout ' + _json.initialBranch, function(error, stdout, stderr) {
-                        console.log("Reset done")
-                    });
-                });
-            }
-        })
+        execute('git checkout -f geek-config', function(error, stdout, stderr) {
+            console.log("Reset done")
+            fse.copy(process.cwd() + "/geek.config.json", process.cwd() + "/geek.json", {
+                "clobber":true
+            }, function() {
+                fs.readFile(process.cwd() + "/geek.json", function(err, data) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        printLibName();
+                        var _json = JSON.parse(data.toString())
+                        _json.index = parseInt(_json.index)
+                        _json.index = 0;
+                        console.log("Resetting previous changes...")
+                        fs.writeFile(process.cwd() + "/geek.json", JSON.stringify(_json, null, 4), function(err, data) {
+                        });
+                    }
+                })
+            })
+        });
     });
 
 program

@@ -6,10 +6,14 @@
   "bin": {
     "geek": "geek.js"
   },
-  "dependencies"  : {
-    "commander": ">=0.6.0",
+  "dependencies": {
     "colors": ">=1.1.2",
-    "promise":">=7.0.2"
+    "commander": ">=0.6.0",
+    "fs-extra": "^0.26.5",
+    "promise": ">=7.0.2"
+  },
+  "scripts": {
+    "test": "mocha test"
   },
   "author": "",
   "license": "ISC"
