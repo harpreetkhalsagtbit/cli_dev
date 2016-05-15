@@ -11,12 +11,6 @@
     "colors": ">=1.1.2",
     "promise": ">=7.0.2"
   },
-  "scripts": {
-    "test": "mocha test"
-  },
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "mocha": "^2.4.5"
-  }
+  "license": "ISC"
 }
