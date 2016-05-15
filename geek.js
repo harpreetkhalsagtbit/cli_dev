@@ -11,10 +11,10 @@ program
     .description('Reset all changes and Initialize')
     .action(function(name) {
         geekHandler.printLibName();
-        geekHandler.geekPerformRestAction().then(function() {
+        geekHandler.geekPerformResetAction().then(function() {
             console.log("Reset done")
         }, function(err) {
-            console.error("geekPerformRestAction: ", err)
+            console.error("geekPerformReestAction: ", err)
         }).catch(function(err) {
             console.log(err.stack);
         });
